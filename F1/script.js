@@ -433,3 +433,79 @@ window.addEventListener("mousedown", function (event) {
       ctx.restore();
     });
   }
+  function drawBackground() {
+    // Draw sky
+    var gradient = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+    gradient.addColorStop(0, "#BBD691");
+    gradient.addColorStop(1, "#FEF1E1");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  
+    // Draw hills
+    drawHill(hill1BaseHeight, hill1Amplitude, hill1Stretch, "#95C629");
+    drawHill(hill2BaseHeight, hill2Amplitude, hill2Stretch, "#659F1C");
+  
+    // Draw trees
+    trees.forEach((tree) => drawTree(tree.x, tree.color));
+  }
+  
+  // A hill is a shape under a stretched out sinus wave
+  function drawHill(baseHeight, amplitude, stretch, color) {
+    ctx.beginPath();
+    ctx.moveTo(0, window.innerHeight);
+    ctx.lineTo(0, getHillY(0, baseHeight, amplitude, stretch));
+    for (let i = 0; i < window.innerWidth; i++) {
+      ctx.lineTo(i, getHillY(i, baseHeight, amplitude, stretch));
+    }
+    ctx.lineTo(window.innerWidth, window.innerHeight);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  
+  function drawTree(x, color) {
+    ctx.save();
+    ctx.translate(
+      (-sceneOffset * backgroundSpeedMultiplier + x) * hill1Stretch,
+      getTreeY(x, hill1BaseHeight, hill1Amplitude)
+    );
+  
+    const treeTrunkHeight = 5;
+    const treeTrunkWidth = 2;
+    const treeCrownHeight = 25;
+    const treeCrownWidth = 10;
+  
+    // Draw trunk
+    ctx.fillStyle = "#7D833C";
+    ctx.fillRect(
+      -treeTrunkWidth / 2,
+      -treeTrunkHeight,
+      treeTrunkWidth,
+      treeTrunkHeight
+    );
+  
+    // Draw crown
+    ctx.beginPath();
+    ctx.moveTo(-treeCrownWidth / 2, -treeTrunkHeight);
+    ctx.lineTo(0, -(treeTrunkHeight + treeCrownHeight));
+    ctx.lineTo(treeCrownWidth / 2, -treeTrunkHeight);
+    ctx.fillStyle = color;
+    ctx.fill();
+  
+    ctx.restore();
+  }
+  
+  function getHillY(windowX, baseHeight, amplitude, stretch) {
+    const sineBaseY = window.innerHeight - baseHeight;
+    return (
+      Math.sinus((sceneOffset * backgroundSpeedMultiplier + windowX) * stretch) *
+        amplitude +
+      sineBaseY
+    );
+  }
+  
+  function getTreeY(x, baseHeight, amplitude) {
+    const sineBaseY = window.innerHeight - baseHeight;
+    return Math.sinus(x) * amplitude + sineBaseY;
+  }
+  
+  
